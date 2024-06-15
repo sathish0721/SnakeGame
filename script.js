@@ -1,10 +1,8 @@
-// script.js
-
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 const gridSize = 10;
-const canvasSize = 500;
+const canvasSize = 350;
 canvas.width = canvasSize;
 canvas.height = canvasSize;
 
@@ -29,7 +27,6 @@ function moveSnake() {
     const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
 
     // Wrap around logic
-
     if (head.x < 0) {
         head.x = canvas.width - gridSize;
     } else if (head.x >= canvas.width) {
@@ -42,10 +39,12 @@ function moveSnake() {
     }
 
     snake.unshift(head);
+
+    // Check if snake eats food
     if (head.x === food.x && head.y === food.y) {
-        placeFood();
+        placeFood(); // Generate new food position
     } else {
-        snake.pop();
+        snake.pop(); // Remove the last segment of the snake
     }
 }
 
@@ -54,16 +53,15 @@ function placeFood() {
         x: Math.floor(Math.random() * (canvas.width / gridSize)) * gridSize,
         y: Math.floor(Math.random() * (canvas.height / gridSize)) * gridSize,
     };
+    // Check if new food position overlaps with the snake's body
     if (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
-        placeFood();
+        placeFood(); // Recursively try again if it overlaps
     }
 }
 
 function checkCollision() {
     const head = snake[0];
-    // if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
-    //     return true;
-    // }
+    // Check collision with itself (excluding the head)
     for (let i = 1; i < snake.length; i++) {
         if (snake[i].x === head.x && snake[i].y === head.y) {
             return true;
@@ -99,5 +97,29 @@ function changeDirection(event) {
     }
 }
 
+function handleTouchStart(event) {
+    const touchX = event.touches[0].clientX;
+    const touchY = event.touches[0].clientY;
+    const deltaX = touchX - snake[0].x;
+    const deltaY = touchY - snake[0].y;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Horizontal swipe
+        if (deltaX > 0 && direction.x === 0) {
+            direction = { x: gridSize, y: 0 }; // Right
+        } else if (deltaX < 0 && direction.x === 0) {
+            direction = { x: -gridSize, y: 0 }; // Left
+        }
+    } else {
+        // Vertical swipe
+        if (deltaY > 0 && direction.y === 0) {
+            direction = { x: 0, y: gridSize }; // Down
+        } else if (deltaY < 0 && direction.y === 0) {
+            direction = { x: 0, y: -gridSize }; // Up
+        }
+    }
+}
+
+canvas.addEventListener('touchstart', handleTouchStart);
 document.addEventListener('keydown', changeDirection);
-setInterval(gameLoop, 30);
+setInterval(gameLoop, 50); // Adjust the interval for game speed
