@@ -3,8 +3,8 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const gridSize = 20;
-const canvasSize = 400;
+const gridSize = 10;
+const canvasSize = 500;
 canvas.width = canvasSize;
 canvas.height = canvasSize;
 
@@ -27,6 +27,20 @@ function drawFood() {
 
 function moveSnake() {
     const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+
+    // Wrap around logic
+
+    if (head.x < 0) {
+        head.x = canvas.width - gridSize;
+    } else if (head.x >= canvas.width) {
+        head.x = 0;
+    }
+    if (head.y < 0) {
+        head.y = canvas.height - gridSize;
+    } else if (head.y >= canvas.height) {
+        head.y = 0;
+    }
+
     snake.unshift(head);
     if (head.x === food.x && head.y === food.y) {
         placeFood();
@@ -47,9 +61,9 @@ function placeFood() {
 
 function checkCollision() {
     const head = snake[0];
-    if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
-        return true;
-    }
+    // if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+    //     return true;
+    // }
     for (let i = 1; i < snake.length; i++) {
         if (snake[i].x === head.x && snake[i].y === head.y) {
             return true;
@@ -86,4 +100,4 @@ function changeDirection(event) {
 }
 
 document.addEventListener('keydown', changeDirection);
-setInterval(gameLoop, 100);
+setInterval(gameLoop, 30);
